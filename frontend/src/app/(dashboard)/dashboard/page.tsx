@@ -26,7 +26,7 @@ const PIPELINE = [
 ];
 
 const stageConfig: Record<string, { color: string; label: string }> = {
-  "Funded": { color: "text-blue-400", label: "● Funded" },
+  "Funded": { color: "text-[var(--accent)]", label: "● Funded" },
   "In Transit": { color: "text-amber-400", label: "◎ In Transit" },
   "Customs Cleared": { color: "text-emerald-400", label: "◆ Customs Cleared" },
   "Released": { color: "text-emerald-400", label: "✓ Released" },

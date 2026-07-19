@@ -42,7 +42,7 @@ export default function ContractsPage() {
       case "DISPUTED": return "text-red-400";
       case "PENDING_FUNDING": return "text-amber-400";
       case "FUNDED":
-      case "IN_PROGRESS": return "text-blue-400";
+      case "IN_PROGRESS": return "text-[var(--accent)]";
       default: return "text-[var(--accent)]";
     }
   };

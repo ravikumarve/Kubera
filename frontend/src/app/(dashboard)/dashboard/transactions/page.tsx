@@ -17,7 +17,7 @@ const TXNS = [
 type Txn = typeof TXNS[0];
 
 const typeStyles: Record<string, { label: string; color: string }> = {
-  FUND: { label: "Deposit", color: "text-blue-400" },
+  FUND: { label: "Deposit", color: "text-[var(--accent)]" },
   RELEASE: { label: "Release", color: "text-emerald-400" },
   REFUND: { label: "Refund", color: "text-amber-400" },
   FEE: { label: "Fee", color: "text-[var(--text-faint)]" },
