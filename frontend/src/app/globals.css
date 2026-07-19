@@ -1,0 +1,139 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  /* Kinetic Brutalism Palette */
+  --color-bg-void: #030303;
+  --color-bg-surface: #0a0a0a;
+  --color-bg-panel: #111111;
+
+  --color-border-faint: rgba(255, 255, 255, 0.08);
+  --color-border-light: rgba(255, 255, 255, 0.2);
+
+  /* Neon Trust Mint */
+  --color-mint-core: #00FFA3;
+  --color-mint-dim: rgba(0, 255, 163, 0.1);
+  --color-mint-glow: rgba(0, 255, 163, 0.3);
+
+  --color-text-main: #ffffff;
+  --color-text-muted: #888888;
+  --color-text-faint: #444444;
+
+  /* Typography */
+  --font-display: 'Syne', sans-serif;
+  --font-sans: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Legacy shadcn tokens (mapped to kinetic palette) */
+  --color-background: #030303;
+  --color-foreground: #ffffff;
+  --color-primary: #00FFA3;
+  --color-primary-foreground: #030303;
+  --color-secondary: #0a0a0a;
+  --color-muted: #0a0a0a;
+  --color-muted-foreground: #888888;
+  --color-accent: #111111;
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-ring: #00FFA3;
+  --color-destructive: #ef4444;
+  --radius: 0rem;
+}
+
+/* Kinetic CSS Variables (for non-Tailwind elements like WebGL) */
+:root {
+  --bg-void: #030303;
+  --bg-surface: #0a0a0a;
+  --bg-panel: #111111;
+  --border-faint: rgba(255, 255, 255, 0.08);
+  --border-light: rgba(255, 255, 255, 0.2);
+  --accent: #00FFA3;
+  --accent-dim: rgba(0, 255, 163, 0.1);
+  --accent-glow: rgba(0, 255, 163, 0.3);
+  --text-main: #ffffff;
+  --text-muted: #888888;
+  --text-faint: #444444;
+  --font-display: 'Syne', sans-serif;
+  --font-sans: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --bento-hover: border;
+  /* Legacy kinetic-specific aliases */
+  --mint-core: #00FFA3;
+  --mint-dim: rgba(0, 255, 163, 0.1);
+  --mint-glow: rgba(0, 255, 163, 0.3);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  border-color: var(--color-border-faint);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-bg-void);
+  color: var(--color-text-main);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  cursor: none;
+}
+
+@media (max-width: 768px) {
+  body {
+    cursor: auto;
+  }
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+
+.mono {
+  font-family: var(--font-mono);
+}
+
+.text-mint {
+  color: var(--mint-core);
+}
+
+.text-accent {
+  color: var(--accent);
+}
+
+/* ===== VAULT COBALT THEME OVERRIDES ===== */
+[data-theme="vault"] {
+  --bg-void: #030304;
+  --bg-surface: #0a0a0c;
+  --bg-panel: #121216;
+  --border-faint: rgba(255, 255, 255, 0.06);
+  --border-light: rgba(255, 255, 255, 0.15);
+  --accent: #2563EB;
+  --accent-dim: rgba(37, 99, 235, 0.1);
+  --accent-glow: rgba(37, 99, 235, 0.3);
+  --text-main: #ffffff;
+  --text-muted: #a1a1aa;
+  --text-faint: #52525b;
+  --font-display: 'Inter', sans-serif;
+  --radius-sm: 4px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --bento-hover: glow;
+}
+
+/* Custom cursor hiding on touch devices */
+@media (hover: none) and (pointer: coarse) {
+  body {
+    cursor: auto;
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "kubera",
+  "private": true,
+  "version": "1.0.0",
+  "description": "B2B Escrow & Trade Finance SaaS Boilerplate",
+  "workspaces": [
+    "frontend"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=frontend",
+    "build": "npm run build --workspace=frontend",
+    "lint": "npm run lint --workspace=frontend",
+    "test:e2e": "npx playwright test",
+    "test:e2e:ui": "npx playwright test --ui"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.61.1"
+  }
+}

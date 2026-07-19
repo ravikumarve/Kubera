@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KUBERA | Institutional Escrow Engine</title>
+    <!-- Premium Typography: Technical Sans + Mono -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* The Cryptographic Vault Palette */
+            --bg-void: #030304;
+            --bg-surface: #0a0a0c;
+            --bg-panel: #121216;
+            
+            --border-faint: rgba(255, 255, 255, 0.06);
+            --border-light: rgba(255, 255, 255, 0.15);
+            
+            /* Vault Cobalt */
+            --cobalt-core: #2563EB;
+            --cobalt-dim: rgba(37, 99, 235, 0.1);
+            --cobalt-glow: rgba(37, 99, 235, 0.3);
+            
+            --text-main: #ffffff;
+            --text-muted: #a1a1aa;
+            --text-faint: #52525b;
+            
+            /* Status Colors */
+            --status-success: #10B981;
+            --status-pending: #F5A623;
+            
+            /* Typography */
+            --font-sans: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; scroll-behavior: smooth; cursor: none; }
+
+        body {
+            background-color: var(--bg-void);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- CUSTOM CURSOR --- */
+        .cursor-dot, .cursor-ring {
+            position: fixed; top: 0; left: 0; transform: translate(-50%, -50%);
+            border-radius: 50%; z-index: 9999; pointer-events: none;
+        }
+        .cursor-dot { width: 4px; height: 4px; background-color: var(--text-main); }
+        .cursor-ring {
+            width: 32px; height: 32px; border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: width 0.2s, height 0.2s, border-color 0.2s, background-color 0.2s;
+        }
+        body:hover .cursor-ring { width: 48px; height: 48px; border-color: var(--cobalt-core); background-color: rgba(37, 99, 235, 0.05); }
+
+        /* --- WEBGL "STATE MACHINE" LAYER --- */
+        #vault-canvas {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: 0; pointer-events: none; opacity: 0.8;
+            mix-blend-mode: screen;
+        }
+
+        /* Ambient Vault Light */
+        .ambient-scanner {
+            position: absolute; top: -10vh; left: 50%; transform: translateX(-50%);
+            width: 80vw; height: 50vh;
+            background: radial-gradient(ellipse at center, rgba(37, 99, 235, 0.1) 0%, transparent 60%);
+            z-index: 0; pointer-events: none; filter: blur(80px);
+        }
+
+        /* Layout */
+        .container { max-width: 1280px; margin: 0 auto; padding: 0 2rem; position: relative; z-index: 10; }
+        section { padding: 9rem 0; border-bottom: 1px solid var(--border-faint); }
+
+        /* Typography */
+        h1, h2, h3, h4 { font-weight: 600; letter-spacing: -0.03em; line-height: 1.1; }
+        .mono { font-family: var(--font-mono); }
+
+        /* --- NAVIGATION --- */
+        nav {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1.5rem 0; margin-top: 1rem; border-bottom: 1px solid var(--border-faint);
+            position: relative; z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.25rem; font-weight: 700; color: var(--text-main); letter-spacing: 2px;
+            text-decoration: none; display: flex; align-items: center; gap: 12px;
+        }
+        .logo-mark {
+            width: 20px; height: 20px; background: var(--text-main);
+            display: flex; justify-content: center; align-items: center; position: relative;
+            transform: rotate(45deg);
+        }
+        .logo-mark::after {
+            content: ''; position: absolute; top: 3px; left: 3px; right: 3px; bottom: 3px;
+            background: var(--bg-void); border: 1px solid var(--cobalt-core);
+        }
+
+        .nav-links { display: flex; gap: 4rem; }
+        .nav-links a { color: var(--text-muted); text-decoration: none; font-size: 0.75rem; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 1px; transition: color 0.3s; }
+        .nav-links a:hover { color: var(--text-main); }
+
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            padding: 0.8rem 1.8rem; font-family: var(--font-sans); font-size: 0.85rem;
+            font-weight: 600; border-radius: 4px; text-decoration: none; transition: all 0.3s ease;
+        }
+        .btn-primary { 
+            background: var(--text-main); color: var(--bg-void); 
+            box-shadow: 0 4px 15px rgba(255,255,255,0.1);
+        }
+        .btn-primary:hover { background: var(--cobalt-core); color: var(--text-main); box-shadow: 0 10px 30px var(--cobalt-glow); }
+        
+        .btn-outline { background: var(--bg-surface); color: var(--text-main); border: 1px solid var(--border-light); }
+        .btn-outline:hover { background: var(--bg-panel); border-color: var(--text-main); }
+
+        /* --- HERO SECTION --- */
+        .hero { min-height: 85vh; display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; padding-top: 0; border: none; position: relative; z-index: 10;}
+        
+        .hero-info { display: flex; flex-direction: column; align-items: flex-start; }
+        
+        .hero-badge {
+            display: inline-flex; align-items: center; gap: 10px;
+            padding: 0.4rem 1.2rem; background: var(--cobalt-dim);
+            border: 1px solid rgba(37, 99, 235, 0.3); color: var(--cobalt-core);
+            font-size: 0.7rem; font-family: var(--font-mono); margin-bottom: 2rem; border-radius: 100px;
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+
+        .hero h1 { font-size: clamp(3rem, 5vw, 4.5rem); margin-bottom: 1.5rem; max-width: 600px; }
+        .hero p { font-size: 1.15rem; color: var(--text-muted); max-width: 500px; line-height: 1.7; margin-bottom: 3rem; font-weight: 400; }
+
+        /* Structural Code Block Mockup */
+        .fsm-mockup {
+            width: 100%; background: var(--bg-panel); border: 1px solid var(--border-light);
+            border-radius: 12px; padding: 2.5rem; box-shadow: 0 40px 100px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.05);
+            font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted); line-height: 1.8;
+            transform: perspective(1000px) rotateY(-5deg) rotateX(2deg); transition: transform 0.5s;
+        }
+        .fsm-mockup:hover { transform: perspective(1000px) rotateY(0deg) rotateX(0deg); }
+        
+        .fsm-header { border-bottom: 1px dashed var(--border-faint); padding-bottom: 1rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between;}
+        .fsm-header span:first-child { color: var(--text-main); }
+        .fsm-header span:last-child { color: var(--cobalt-core); }
+
+        .f-keyword { color: #c4b5fd; }
+        .f-func { color: #60a5fa; }
+        .f-string { color: #34d399; }
+        .f-comment { color: var(--text-faint); }
+
+        /* --- THE ARCHITECTURE (BENTO MATRIX) --- */
+        .section-header { margin-bottom: 5rem; }
+        .section-header h2 { font-size: 3rem; margin-bottom: 1.5rem; }
+        .section-header p { font-size: 1.15rem; color: var(--text-muted); max-width: 650px; line-height: 1.7; font-weight: 400;}
+
+        .bento-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 1px; background: var(--border-light); border: 1px solid var(--border-light); border-radius: 16px; overflow: hidden;}
+        
+        .bento-card {
+            background: var(--bg-surface); padding: 4rem; position: relative;
+            transition: background 0.4s ease; display: flex; flex-direction: column;
+        }
+        
+        .bento-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(800px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(37, 99, 235, 0.08), transparent 40%);
+            z-index: 0; opacity: 0; transition: opacity 0.4s; pointer-events: none;
+        }
+
+        .bento-card.interactive-card:hover { background: var(--bg-panel); }
+        .bento-card.interactive-card:hover::before { opacity: 1; }
+
+        .bento-card > * { position: relative; z-index: 1; }
+
+        .col-8 { grid-column: span 8; }
+        .col-4 { grid-column: span 4; }
+        .col-6 { grid-column: span 6; }
+        .col-12 { grid-column: span 12; }
+
+        .bc-tag { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-faint); margin-bottom: 2rem; display: flex; align-items: center; gap: 8px; text-transform: uppercase; letter-spacing: 1px;}
+        .bc-tag::before { content: '■'; color: var(--cobalt-core); font-size: 0.6rem;}
+        
+        .bento-card h3 { font-size: 2rem; margin-bottom: 1rem; color: var(--text-main); }
+        .bento-card p { font-size: 1.05rem; color: var(--text-muted); line-height: 1.8; font-weight: 400; flex: 1;}
+
+        /* --- STACK GRID --- */
+        .stack-section { display: grid; grid-template-columns: 1fr 1fr; gap: 6rem; align-items: center; }
+        
+        .status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border-light); border: 1px solid var(--border-light); border-radius: 12px; overflow: hidden; margin-top: 3rem;}
+        .status-card { background: var(--bg-surface); padding: 2.5rem; display: flex; flex-direction: column;}
+        .sc-val { font-size: 2.5rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.5rem; line-height: 1; display: flex; align-items: center; gap: 10px;}
+        .sc-lbl { font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 1px;}
+
+        .stack-list { list-style: none; display: flex; flex-direction: column; gap: 0; border-top: 1px solid var(--border-faint);}
+        .stack-list li { display: flex; justify-content: space-between; font-size: 0.95rem; color: var(--text-muted); align-items: center; border-bottom: 1px solid var(--border-faint); padding: 1.5rem 0;}
+        .stack-list li span:last-child { color: var(--text-main); font-family: var(--font-mono); font-size: 0.75rem; background: var(--bg-panel); padding: 6px 10px; border-radius: 4px; border: 1px solid var(--border-light);}
+
+        /* --- PRICING --- */
+        .pricing-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem; margin-top: 4rem; max-width: 900px;}
+        .price-card {
+            background: var(--bg-surface); border: 1px solid var(--border-light);
+            border-radius: 16px; padding: 4rem; display: flex; flex-direction: column; transition: all 0.3s;
+        }
+        .price-card:hover { border-color: var(--text-main); }
+        
+        .p-tier { font-family: var(--font-mono); font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--text-main); }
+        .p-desc { font-size: 0.95rem; color: var(--text-muted); margin-bottom: 2rem; font-weight: 400; }
+        .p-price { font-size: 3.5rem; font-weight: 700; color: var(--text-main); margin-bottom: 2.5rem; border-bottom: 1px solid var(--border-faint); padding-bottom: 2.5rem; line-height: 1;}
+        
+        .p-features { list-style: none; display: flex; flex-direction: column; gap: 1.25rem; margin-bottom: 3rem; flex: 1;}
+        .p-features li { display: flex; align-items: center; gap: 12px; font-size: 0.95rem; color: var(--text-muted); }
+        .p-features li::before { content: ''; width: 6px; height: 6px; background: var(--cobalt-core); border-radius: 50%;}
+
+        /* --- CTA BAND --- */
+        .cta-band { background: var(--bg-surface); border: 1px solid var(--border-light); border-radius: 20px; padding: 6rem 4rem; text-align: center; margin: 4rem 0; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02);}
+        .cta-band h2 { font-size: 3rem; margin-bottom: 1.5rem; }
+        .cta-band p { color: var(--text-muted); font-size: 1.15rem; max-width: 600px; margin: 0 auto 3rem; line-height: 1.8;}
+
+        /* --- FOOTER --- */
+        footer { padding: 5rem 0 3rem; display: flex; justify-content: space-between; align-items: flex-start; border-top: 1px solid var(--border-faint); position: relative; z-index: 10;}
+        .f-brand p { color: var(--text-muted); font-size: 0.9rem; margin-top: 1.5rem; max-width: 320px; line-height: 1.8; }
+        
+        .f-links { display: flex; gap: 5rem; }
+        .f-col h5 { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-faint); margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 2px;}
+        .f-col ul { list-style: none; display: flex; flex-direction: column; gap: 1rem; }
+        .f-col a { color: var(--text-muted); text-decoration: none; font-size: 0.95rem; transition: color 0.2s; }
+        .f-col a:hover { color: var(--text-main); }
+
+        .f-bottom { margin-top: 6rem; padding-top: 2rem; border-top: 1px solid var(--border-faint); display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-faint); text-transform: uppercase; letter-spacing: 1px;}
+
+        /* Responsiveness */
+        @media (max-width: 1024px) {
+            .hero, .stack-section { grid-template-columns: 1fr; gap: 4rem; }
+            .fsm-mockup { max-width: 600px; margin: 0 auto; transform: none; }
+            .col-8, .col-4, .col-6 { grid-column: span 12; }
+            .pricing-grid { grid-template-columns: 1fr; }
+            footer { flex-direction: column; gap: 4rem; }
+        }
+
+        @media (max-width: 768px) {
+            nav { flex-direction: column; gap: 1.5rem; padding: 2rem 0; border-bottom: none;}
+            .nav-links { display: none; }
+            .hero h1 { font-size: 3.5rem; }
+            .bento-card, .cta-band { padding: 2.5rem 1.5rem; }
+            .f-links { flex-direction: column; gap: 2rem; }
+            .f-bottom { flex-direction: column; gap: 1rem; text-align: center; }
+            body { cursor: auto; }
+            .cursor-dot, .cursor-ring { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Custom Cursor -->
+    <div class="cursor-dot" id="cursor-dot"></div>
+    <div class="cursor-ring" id="cursor-ring"></div>
+
+    <!-- WebGL State Machine Canvas Layer -->
+    <canvas id="vault-canvas"></canvas>
+    <div class="ambient-scanner"></div>
+
+    <div class="container">
+        <!-- NAVIGATION -->
+        <nav class="interactive">
+            <a href="#" class="logo">
+                <div class="logo-mark"></div>
+                KUBERA
+            </a>
+            <div class="nav-links">
+                <a href="#engine">The Engine</a>
+                <a href="#infrastructure">Infrastructure</a>
+                <a href="#pricing">Pricing</a>
+            </div>
+            <a href="https://github.com/yourusername/kuber" class="btn btn-outline interactive">View Source</a>
+        </nav>
+
+        <!-- HERO SECTION -->
+        <section class="hero">
+            <div class="hero-info">
+                <div class="hero-badge">
+                    Institutional Escrow Boilerplate
+                </div>
+                <h1>Deploy your B2B escrow platform in weeks.</h1>
+                <p>KUBERA is a production-ready source-code boilerplate that wires together Next.js 16, FastAPI, PostgreSQL, and Stripe Connect into a working escrow SaaS foundation.</p>
+                <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                    <a href="#pricing" class="btn btn-primary interactive">Buy Source Code</a>
+                    <a href="docs/ARCHITECTURE.md" class="btn btn-outline interactive">View Specs</a>
+                </div>
+            </div>
+
+            <!-- FSM Structural Mockup -->
+            <div class="fsm-mockup interactive-card">
+                <div class="fsm-header">
+                    <span>escrow_engine.py</span>
+                    <span>15 Valid Transitions</span>
+                </div>
+                <div class="f-comment"># Finite State Machine: Guard-Protected Transitions</div>
+                <br>
+                <span class="f-keyword">class</span> ContractFSM:<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;states = [<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="f-string">'DRAFT'</span>, <span class="f-string">'PENDING_FUNDING'</span>, <span class="f-string">'FUNDED'</span>,<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="f-string">'IN_PROGRESS'</span>, <span class="f-string">'DISPUTED'</span>, <span class="f-string">'COMPLETED'</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;]<br>
+                <br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="f-keyword">@guard_protected</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="f-keyword">async def</span> <span class="f-func">transition_to_funded</span>(self, payment_intent):<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="f-keyword">if not</span> payment_intent.status == <span class="f-string">'succeeded'</span>:<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="f-keyword">raise</span> InvalidStateError()<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="f-keyword">await</span> self.update_state(<span class="f-string">'FUNDED'</span>)<br>
+                <br>
+                <span class="f-comment"># Invalid transitions are impossible at the code level.</span>
+            </div>
+        </section>
+
+        <!-- THE ENGINE (BENTO MATRIX) -->
+        <section id="engine">
+            <div class="section-header">
+                <h2>The Escrow <br>Architecture.</h2>
+                <p>Handling other people's money requires absolute precision. Kubera enforces strict logic guards across every transition.</p>
+            </div>
+
+            <div class="bento-grid" id="bento-container">
+                <!-- FSM -->
+                <div class="bento-card col-8 interactive-card">
+                    <span class="bc-tag">CORE // FINITE STATE MACHINE</span>
+                    <h3>9-State Strict Engine</h3>
+                    <p>Contracts move predictably from DRAFT to COMPLETED with explicit branches for DISPUTED and REFUNDED. 15 valid transitions, each guarded by mathematical verification. Invalid transitions are impossible at the code level.</p>
+                </div>
+
+                <!-- Stripe -->
+                <div class="bento-card col-4 interactive-card">
+                    <span class="bc-tag">COMMERCE // STRIPE CONNECT</span>
+                    <h3>Platform Fee Model</h3>
+                    <p>Kubera never touches funds directly, avoiding heavy money-transmitter regulation. Funds are held via PaymentIntents and released via Stripe Transfers.</p>
+                </div>
+
+                <!-- Milestones -->
+                <div class="bento-card col-6 interactive-card">
+                    <span class="bc-tag">LOGIC // MULTI-TRANCHE</span>
+                    <h3>Milestone-Based Release</h3>
+                    <p>Configure multi-milestone contracts with percentage-based allocation. Partial funds are securely released to the seller only as specific deliverables are approved.</p>
+                </div>
+
+                <!-- Disputes -->
+                <div class="bento-card col-6 interactive-card">
+                    <span class="bc-tag">RISK // OVERSIGHT</span>
+                    <h3>Dispute Management</h3>
+                    <p>Raise, investigate, and resolve disputes internally. Pre-built resolution paths for buyer-favor, seller-favor, or custom partial refunds via Admin override.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SAAS ARCHITECTURE -->
+        <section id="infrastructure" class="stack-section" style="border-bottom: none;">
+            <div>
+                <h2>Institutional <br>Infrastructure.</h2>
+                <p style="color: var(--text-muted); font-size: 1.15rem; line-height: 1.8; margin-bottom: 2rem; font-weight: 400;">Kubera is built on async FastAPI and PostgreSQL with SERIALIZABLE transaction isolation. Immutable audit logs track every financial event.</p>
+                
+                <div class="status-grid">
+                    <div class="status-card">
+                        <div class="sc-val"><span style="color: var(--cobalt-core);">●</span> OpenAPI 3.1</div>
+                        <div class="sc-lbl">Auto-generated Docs</div>
+                    </div>
+                    <div class="status-card">
+                        <div class="sc-val"><span style="color: var(--cobalt-core);">●</span> PostgreSQL 16</div>
+                        <div class="sc-lbl">ACID Transactions</div>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <ul class="stack-list">
+                    <li>Frontend Client <span>Next.js 16 + Tailwind v4</span></li>
+                    <li>Backend Engine <span>FastAPI + SQLAlchemy 2.0 (Async)</span></li>
+                    <li>Payments <span>Stripe Connect Express</span></li>
+                    <li>Background Jobs <span>Celery + Redis 7</span></li>
+                    <li>Validation <span>Pydantic v2 (Rust Core)</span></li>
+                    <li>Testing <span>Playwright + pytest + Vitest</span></li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- PRICING -->
+        <section id="pricing" style="border-top: 1px solid var(--border-faint);">
+            <div class="section-header">
+                <h2>Buy once. <br>Deploy anywhere.</h2>
+                <p>Full source code ownership. No recurring fees.</p>
+            </div>
+
+            <div class="pricing-grid">
+                <div class="price-card interactive-card">
+                    <div class="p-tier">Standard</div>
+                    <div class="p-desc">The complete source code foundation.</div>
+                    <div class="p-price">$149</div>
+                    <ul class="p-features">
+                        <li>Full Frontend (Next.js 16 + shadcn)</li>
+                        <li>Full Backend (FastAPI + SQLAlchemy)</li>
+                        <li>Docker Compose Dev Environment</li>
+                        <li>Complete Documentation (14 Docs)</li>
+                    </ul>
+                    <a href="#" class="btn btn-outline interactive">Purchase Standard</a>
+                </div>
+
+                <div class="price-card interactive-card" style="border-color: var(--cobalt-core); position: relative;">
+                    <div style="position: absolute; top: -12px; left: 2rem; background: var(--cobalt-core); color: #fff; font-family: var(--font-mono); font-size: 0.7rem; padding: 4px 12px; border-radius: 4px; text-transform: uppercase;">Most Popular</div>
+                    <div class="p-tier">Pro</div>
+                    <div class="p-desc">For agencies and production deployment.</div>
+                    <div class="p-price">$249</div>
+                    <ul class="p-features">
+                        <li>Everything in Standard</li>
+                        <li>E2E Test Suite (Playwright + pytest)</li>
+                        <li>Prod Deployment Scripts (Nginx/Backup)</li>
+                        <li>White-label License (Client work allowed)</li>
+                    </ul>
+                    <a href="#" class="btn btn-primary interactive" style="width: 100%;">Purchase Pro</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA BAND -->
+        <section style="padding: 0; border: none;">
+            <div class="cta-band">
+                <h2>Deploy the Infrastructure.</h2>
+                <p>Stop rebuilding authentication, Stripe Connect routing, and state machines. Buy Kubera and launch your escrow platform this weekend.</p>
+                <div style="display: flex; justify-content: center; margin-top: 2.5rem;">
+                    <a href="https://github.com/yourusername/kuber" class="btn btn-primary interactive">View GitHub</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer>
+            <div class="f-brand">
+                <a href="#" class="logo"><div class="logo-mark"></div>KUBERA</a>
+                <p>Institutional escrow engine and trade finance boilerplate. Built with Next.js 16, FastAPI, and Stripe Connect.</p>
+            </div>
+            
+            <div class="f-links">
+                <div class="f-col">
+                    <h5>Architecture</h5>
+                    <ul>
+                        <li><a href="docs/ARCHITECTURE.md" class="interactive">System Design</a></li>
+                        <li><a href="docs/DATABASE.md" class="interactive">Database Schema</a></li>
+                        <li><a href="docs/SECURITY.md" class="interactive">Threat Model</a></li>
+                    </ul>
+                </div>
+                <div class="f-col">
+                    <h5>Repository</h5>
+                    <ul>
+                        <li><a href="https://github.com/yourusername/kuber" class="interactive">GitHub Source</a></li>
+                        <li><a href="docs/API-SPEC.md" class="interactive">OpenAPI Spec</a></li>
+                        <li><a href="docs/DEPLOYMENT.md" class="interactive">Deployment Guide</a></li>
+                    </ul>
+                </div>
+            </div>
+        </footer>
+        
+        <div class="f-bottom">
+            <div>© 2026 KUBERA ESCROW BOILERPLATE. MIT / COMMERCIAL LICENSE.</div>
+            <div>STATUS: <span style="color: var(--status-success);">v1 STABLE</span></div>
+        </div>
+    </div>
+
+    <script>
+        // Custom Cursor Logic
+        const cursorDot = document.getElementById('cursor-dot');
+        const cursorRing = document.getElementById('cursor-ring');
+        const interactables = document.querySelectorAll('.interactive, .interactive-card, .btn');
+        
+        let cursorX = window.innerWidth / 2;
+        let cursorY = window.innerHeight / 2;
+        let outlineX = cursorX;
+        let outlineY = cursorY;
+
+        window.addEventListener('mousemove', (e) => {
+            cursorX = e.clientX;
+            cursorY = e.clientY;
+            
+            // Apply glow mask variable to Bento Cards
+            document.querySelectorAll('.interactive-card').forEach(card => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                card.style.setProperty('--mouse-x', `${x}px`);
+                card.style.setProperty('--mouse-y', `${y}px`);
+            });
+        });
+
+        // Interactive hover states for cursor
+        interactables.forEach(el => {
+            el.addEventListener('mouseenter', () => cursorRing.style.transform = 'translate(-50%, -50%) scale(1.5)');
+            el.addEventListener('mouseleave', () => cursorRing.style.transform = 'translate(-50%, -50%) scale(1)');
+        });
+
+        // --- WebGL "State Machine" Canvas Logic ---
+        // This simulates a strict, geometric matrix of nodes. 
+        // As the mouse moves, nodes align perfectly into "valid transition" lines.
+        
+        const canvas = document.getElementById('vault-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let time = 0;
+        
+        const nodes = [];
+        const cols = 20;
+        const rows = 12;
+        let spacingX, spacingY;
+
+        function init() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            
+            spacingX = width / cols;
+            spacingY = height / rows;
+            
+            nodes.length = 0;
+            
+            for(let x = 0; x <= cols; x++) {
+                for(let y = 0; y <= rows; y++) {
+                    nodes.push({
+                        baseX: x * spacingX,
+                        baseY: y * spacingY,
+                        currentX: x * spacingX,
+                        currentY: y * spacingY,
+                        // Determine if it's a "major" state node
+                        isMajor: Math.random() > 0.85
+                    });
+                }
+            }
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            ctx.clearRect(0, 0, width, height);
+            
+            time += 0.02;
+
+            // Cursor smoothing
+            outlineX += (cursorX - outlineX) * 0.15;
+            outlineY += (cursorY - outlineY) * 0.15;
+            cursorDot.style.left = `${cursorX}px`;
+            cursorDot.style.top = `${cursorY}px`;
+            cursorRing.style.left = `${outlineX}px`;
+            cursorRing.style.top = `${outlineY}px`;
+
+            ctx.lineWidth = 1;
+
+            // Draw and update Nodes
+            for(let i = 0; i < nodes.length; i++) {
+                let n = nodes[i];
+                
+                // Mathematical drift (very rigid, machine-like)
+                let driftX = Math.sin(time + n.baseY * 0.1) * 5;
+                let driftY = Math.cos(time + n.baseX * 0.1) * 5;
+                
+                let targetX = n.baseX + driftX;
+                let targetY = n.baseY + driftY;
+
+                // Mouse Interaction (Alignment)
+                // When mouse is near, nodes snap rigidly to a grid relative to the mouse
+                let dx = cursorX - n.baseX;
+                let dy = cursorY - n.baseY;
+                let dist = Math.sqrt(dx*dx + dy*dy);
+                
+                let opacity = 0.1;
+                
+                if (dist < 300) {
+                    let force = (300 - dist) / 300;
+                    // Snap to rigid 45 or 90 degree angles relative to mouse
+                    let angle = Math.atan2(dy, dx);
+                    // Quantize angle
+                    let snapAngle = Math.round(angle / (Math.PI/4)) * (Math.PI/4);
+                    
+                    targetX = n.baseX + Math.cos(snapAngle) * (20 * force);
+                    targetY = n.baseY + Math.sin(snapAngle) * (20 * force);
+                    
+                    opacity = 0.1 + (force * 0.5);
+                }
+
+                // Spring physics to target
+                n.currentX += (targetX - n.currentX) * 0.1;
+                n.currentY += (targetY - n.currentY) * 0.1;
+
+                // Draw Node
+                ctx.beginPath();
+                if (n.isMajor && dist < 300) {
+                    // Draw a cryptographic square for major nodes
+                    ctx.rect(n.currentX - 3, n.currentY - 3, 6, 6);
+                    ctx.fillStyle = `rgba(37, 99, 235, ${opacity * 1.5})`; // Cobalt
+                    ctx.shadowBlur = 10;
+                    ctx.shadowColor = '#2563EB';
+                } else {
+                    ctx.arc(n.currentX, n.currentY, 1.5, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+                    ctx.shadowBlur = 0;
+                }
+                ctx.fill();
+                ctx.shadowBlur = 0; // Reset
+
+                // Draw structured, non-organic connections (Orthogonal and Diagonal only)
+                if (dist < 300) {
+                    // Find neighbors
+                    for(let j = i + 1; j < nodes.length; j++) {
+                        let n2 = nodes[j];
+                        let dx2 = Math.abs(n.baseX - n2.baseX);
+                        let dy2 = Math.abs(n.baseY - n2.baseY);
+                        
+                        // Only connect adjacent nodes in the grid
+                        if ((dx2 <= spacingX && dy2 === 0) || (dy2 <= spacingY && dx2 === 0) || (dx2 <= spacingX && dy2 <= spacingY)) {
+                            let n2Dist = Math.sqrt(Math.pow(cursorX - n2.baseX, 2) + Math.pow(cursorY - n2.baseY, 2));
+                            if (n2Dist < 300) {
+                                ctx.beginPath();
+                                ctx.moveTo(n.currentX, n.currentY);
+                                ctx.lineTo(n2.currentX, n2.currentY);
+                                
+                                let avgForce = ( (300 - dist)/300 + (300 - n2Dist)/300 ) / 2;
+                                ctx.strokeStyle = `rgba(37, 99, 235, ${avgForce * 0.3})`;
+                                ctx.stroke();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        window.addEventListener('resize', init);
+        init();
+        animate();
+    </script>
+</body>
+</html>

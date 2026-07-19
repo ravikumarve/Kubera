@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.env
+.venv/
+dist/
+
+# Node
+node_modules/
+.next/
+out/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env.local
+.env.production
+
+# Coverage
+coverage/
+htmlcov/
+
+# Playwright E2E
+e2e/test-results/
+e2e/playwright-report/
+
+# Build artifacts
+*.tsbuildinfo
+.next/
