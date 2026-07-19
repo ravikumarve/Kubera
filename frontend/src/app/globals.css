@@ -83,13 +83,6 @@ body {
   font-family: var(--font-sans);
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
-  cursor: none;
-}
-
-@media (max-width: 768px) {
-  body {
-    cursor: auto;
-  }
 }
 
 h1, h2, h3, h4 {
@@ -131,9 +124,4 @@ h1, h2, h3, h4 {
   --bento-hover: glow;
 }
 
-/* Custom cursor hiding on touch devices */
-@media (hover: none) and (pointer: coarse) {
-  body {
-    cursor: auto;
-  }
-}
+/* Custom cursor hiding on touch devices — handled by cursor component */

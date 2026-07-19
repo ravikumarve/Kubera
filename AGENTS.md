@@ -150,3 +150,117 @@
 - **Files Modified:** 6 files (globals.css, bento-card, pricing-card, fsm-mockup, page.tsx, providers.tsx)
 - **Verification:** npx tsc --noEmit — 0 errors from Phase 3 files ✅ | 25/25 vitest still passing ✅
 - **Next Turn Directive:** The 3-phase build is complete. Next: Deploy, create GitHub repo + Gumroad listing, or polish any remaining items.
+
+### [2026-07-19 19:30] — Build Fixes & Runtime Error Resolution
+- **State:** Success — Build and runtime errors fixed
+- **MCP Data Used:** Read auth.ts, layout.tsx, sidebar.tsx, data-table.tsx, contract-wizard.tsx, providers.tsx, root layout
+- **Agency Agents Deployed:** Orchestrator (direct execution)
+- **Architectural Decisions:**
+  - Moved `(dashboard)/` pages under `(dashboard)/dashboard/` subdirectory to resolve route group conflict (`(dashboard)/page.tsx` and `(marketing)/page.tsx` both resolved to `/`). All dashboard routes now live at `/dashboard/*` paths matching sidebar navigation links.
+  - Removed `T extends Record<string, unknown>` constraint from DataTable generic — too restrictive for TypeScript interfaces without index signatures. Unconstrained generic with `any` casts for sort/search operations.
+  - Added `as any` cast to `createContract.mutateAsync(data)` in contract-wizard.tsx where ContractFormData doesn't fully align with Partial<Contract>.
+- **Runtime Fixes:**
+  - Created `frontend/.env` with `AUTH_SECRET` (generated via openssl rand) to fix NextAuth `MissingSecret` error
+  - Created `/login` page at `frontend/src/app/login/page.tsx` with Email + Google sign-in to fix 404 redirect loop from dashboard layout
+- **Build Verification:** npm run build — 13/13 static pages ✅ (Compiled 17.6s, TypeScript 21.6s, zero errors)
+- **Next Turn Directive:** Start dev server, test login flow, create demo seed data, or create GitHub repo for the project.
+
+### [2026-07-19 20:00] — Default Test Credentials & Seed Script
+- **State:** Success
+- **MCP Data Used:** Read auth.py, user.py, seed.py (new), main.py, config.py
+- **Agency Agents Deployed:** Orchestrator (direct execution)
+- **Architectural Decision:** Added auto-seed in the FastAPI lifespan handler (dev only — skips in production). Creates a default admin user on first startup if the DB is empty. No additional commands needed — just start the backend.
+- **Default Credentials:** `dev@kubera.dev` / `demo1234` (role: admin)
+- **Files Created:** `backend/app/seed.py`
+- **Files Modified:** `backend/app/main.py` (wired seed into lifespan)
+- **Build Verification:** npm run build — 13/13 static pages ✅ (backend refs only, no frontend changes)
+- **Next Turn Directive:** Start the backend + frontend, test the full login flow with `dev@kubera.dev` / `demo1234`, or create a GitHub repo.
+
+### [2026-07-19 21:00] — Premium Dashboard Overhaul
+- **State:** Success — 8 files modified/created
+- **MCP Data Used:** Read all dashboard components (sidebar, header, layout, dashboard page, stats-card, models, stores, globals.css, cursor components)
+- **Agency Agents Deployed:** Orchestrator (direct execution — design + implementation)
+- **Architectural Decisions:**
+  - **Cursor fix:** Both kinetic-cursor and vault-cursor now detect input/textarea/select/[contenteditable] elements and hide (opacity: 0) over them. Previously the cursor stayed visible over text fields, creating a "disappeared" illusion since the native cursor was hidden via `body { cursor: none }`.
+  - **Design system alignment:** All dashboard components now use kinetic CSS variables (`var(--bg-surface)`, `var(--border-faint)`, `var(--accent)`, etc.) instead of generic shadcn classes. Dashboard matches the landing page look.
+  - **Sidebar:** Redesigned with collapsible toggle, user avatar + name + role at bottom, icon + label nav with active state using accent color, sign-out button. Matches premium boilerplate standards.
+  - **Header:** Added search bar with Cmd+K hint, notification bell with unread dot, backdrop blur effect. Mobile hamburger menu preserved.
+  - **Dashboard overview:** Welcome greeting (time-aware), 4 KPI cards with CSS sparkline bar charts, recent activity feed (2-column), quick actions panel, status overview bar chart. All use kinetic brutalist design language.
+  - **Contracts page:** Added mini stats row (total, active, volume) above table.
+  - **Transactions page:** Added mini stats row (total, inflow, outflow) above table with +/- amount formatting.
+- **Files Modified/Created:**
+  - `kinetic-cursor.tsx` — input detection + hide
+  - `vault-cursor.tsx` — input detection + hide
+  - `sidebar.tsx` — full rewrite (collapsible, user profile, sign-out)
+  - `header.tsx` — full rewrite (search, notifications, blur)
+  - `dashboard-layout.tsx` — updated with new sidebar/header
+  - `stats-card.tsx` — full rewrite (sparkline, accent line, hover effects)
+  - `dashboard/page.tsx` — full rewrite (premium overview)
+  - `contracts/page.tsx` — upgraded with mini stats
+  - `transactions/page.tsx` — upgraded with mini stats + inflow/outflow
+- **Build Verification:** npm run build — 13/13 static pages ✅ (Compiled 17.2s, TypeScript 22.6s, zero errors)
+- **Next Turn Directive:** Test the dashboard live (login, browse pages), create GitHub repo, or move to Gumroad listing prep.
+
+### [2026-07-19 22:00] — Cursor Fix + Dashboard WebGL Canvas
+- **State:** Success — Cursor now works globally, dashboard has WebGL canvas background
+- **MCP Data Used:** Read cursor components, canvas components, providers, marketing page, globals.css
+- **Agency Agents Deployed:** Orchestrator (direct execution)
+- **Architectural Decisions:**
+  - **Cursor architecture change:** Removed `body { cursor: none }` from globals.css. Each cursor component now sets `document.body.style.cursor = 'none'` on mount and restores on unmount. Created `CursorWrapper` component in providers.tsx that renders the appropriate cursor (kinetic/vault) based on theme at the root level — cursor now works on every page, not just the landing page.
+  - **Dashboard WebGL canvas:** Added KineticCanvas/VaultCanvas to the dashboard layout. Dashboard now has the same particle-flow background as the landing page. Canvas sits at z-index 0 with sidebar/content at z-index 10 above it.
+  - **Marketing page cleanup:** Removed duplicate cursor rendering from marketing page since it's now global.
+- **Files Created:** `cursor-wrapper.tsx`
+- **Files Modified:** `globals.css`, `kinetic-cursor.tsx`, `vault-cursor.tsx`, `providers.tsx`, `dashboard-layout.tsx`, `(marketing)/page.tsx`
+- **Build Verification:** npm run build — 13/13 static pages ✅ (Compiled 24.1s, TypeScript 22.4s, zero errors)
+- **Next Turn Directive:** Test the full dashboard live, create GitHub repo, or move to Gumroad listing prep.
+
+### [2026-07-19 23:00] — Command-Center Dashboard Overhaul (Full App)
+- **State:** Success — All 7 dashboard pages converted to terminal-style layout
+- **MCP Data Used:** Read command-center page (design reference), all 6 dashboard pages (overview, contracts, transactions, admin, disputes, settings), dashboard-layout
+- **Agency Agents Deployed:** Orchestrator (direct execution — design + implementation of all 9 files)
+- **Architectural Decision:** Removed sidebar entirely. Replaced with Command Bar (top nav tabs: Overview, Contracts, Transactions, Admin, Settings) + Status Bar (bottom bar). Every dashboard page now uses the same full-width, font-mono, compact-spacing command-center design language. Nav tabs highlight based on `usePathname()`. Admin tab only visible to admin role.
+- **Key Design Rules Applied:**
+  - Full-width layout (no sidebar, no max-width constraint)
+  - `font-mono` on every text element
+  - Compact spacing (px-6, p-4/5, gap-4, py-2.5/3)
+  - Small text scale (10px labels, 11px meta, 13px body, 20px values)
+  - Uppercase tracking-wider/widest on all labels
+  - Border-based panels (no rounded corners in kinetic mode)
+  - Terminal esthetic: `$` commands, log-style lists, telemetry gauges with ▲/▼ trends
+  - Bottom status bar with version, health, uptime, live clock
+  - Section headers with date + animated cursor `_`
+  - All spacing is tight but readable — no wasted free space, everything fits
+- **Files Created:** `command-bar.tsx`, `status-bar.tsx`
+- **Files Rewritten:** `dashboard-layout.tsx` (no sidebar/header), `dashboard/page.tsx` (overview with telemetry + activity log + quick commands), `contracts/page.tsx` (table list), `transactions/page.tsx` (table list with inflow/outflow), `admin/page.tsx` (users table), `admin/disputes/page.tsx` (disputes table with resolve/dismiss), `settings/page.tsx` (tabs: profile, api-keys, appearance)
+- **Files Removed from Layout:** `sidebar.tsx`, `header.tsx` (no longer imported — can be deleted)
+- **Build Verification:** npm run build — 15/15 static pages ✅ (Compiled 21.4s, TypeScript 22.9s, zero errors)
+- **Next Turn Directive:** Start dev server with `setsid npx next dev` to test live, or create GitHub repo, or move to Gumroad listing prep.
+
+### [2026-07-19 23:30] — Gemini-Inspired Dashboard Overhaul
+- **State:** Success — Overview page rebuilt with 4 new data modules
+- **MCP Data Used:** Read existing dashboard page (189 lines), command-bar.tsx
+- **Agency Agents Deployed:** Orchestrator (direct execution)
+- **Architectural Decisions:**
+  - **Escrow Pipeline** replaces the generic activity log as the primary content. Shows 5 active escrows with trade route (buyer→seller), amount, and stage indicator (Funded/In Transit/Customs Cleared/Released/Pending).
+  - **FX Volatility Monitor** — 5 currency pairs (USD/INR, USD/EUR, etc.) with rate, change %, volatility level, and Auto-Hedging badge (green).
+  - **Liquidity Queue** — 3 invoice discounting requests with amount, risk profile (Low/Medium), term days, and [Approve] button.
+  - **Interactive CLI Terminal** — clicking a command shortcut fills the prompt. Typing `help` shows available commands. Typing `contract create`, `tx list`, etc. navigates after 400ms delay. Replaces the static Quick Commands block.
+  - **Gradient borders on metric cards** — 1px transparent border with background-layer trick: `linear-gradient(surface, surface) padding-box` + `linear-gradient(135deg, accent, transparent) border-box`.
+  - **Font size bump** — Metric labels 10px→12px, metric values text-xl→text-2xl, log body 13px→14px, log time/level 11px→12px. Command-bar nav tabs text-xs→text-[13px].
+  - **Live Activity Log** moved to bottom section (de-emphasized). System status becomes a compact footer strip.
+- **Files Modified:** `dashboard/page.tsx` (full rewrite, 285 lines), `command-bar.tsx` (font bumps)
+- **Build Verification:** npm run build — 15/15 static pages ✅ (Compiled 34.9s, TypeScript 48s, zero errors)
+- **Next Turn Directive:** Test live at /dashboard, adjust any spacing/tightness issues, or move to Gumroad listing prep.
+
+### [2026-07-19 23:30] — Gemini-Inspired Dashboard Overhaul (Part 2: Subpages)
+- **State:** Success — Contracts, Transactions, Settings overhauled with Gemini's subpage feedback
+- **MCP Data Used:** Read contracts/page.tsx, transactions/page.tsx, settings/page.tsx, kinetic-canvas.tsx, vault-canvas.tsx
+- **Agency Agents Deployed:** Orchestrator (direct execution)
+- **Architectural Decisions:**
+  - **Contracts:** Empty state redesigned with terminal-style ASCII box (`╔══ [SYSTEM STATUS] ══╗`) + Quick-Start Blueprint Grid (3 templates: Standard Trade Escrow, Milestone Vendor Contract, Custom Multi-Sig Vault) with dimmed cards that populate vertical space. Table uses `flex-1` to fill viewport. Added pagination bar (`Showing X of Y entries // Database Sync: Nominal`).
+  - **Transactions:** Split-pane layout — left 60% list, right 40% Inspection Panel. Clicking a row shows ledger hash, currency conversion breakdown (from/to/rate/fee/net), timeline with dot-stepper, and cryptographic signature seal. Increased row heights (py-4) for breathing room. Selected row gets accent border-left highlight.
+  - **Settings:** Switched from top tabs to left vertical sidebar (Profile, API Keys, Webhooks, MCP Nodes) with accent-colored active indicator. Added Webhooks & Signatures section with webhook list + signing secret display. Added MCP Server Nodes section with connection status indicators. API Keys now rendered as a proper table.
+  - **Background canvas:** Kinetic canvas circle (ESCROW_RADIUS) enlarged 150→220. Dash stroke opacity reduced 0.12→0.06. Fill fade reduced 0.2→0.15. Circle is larger and more subtle.
+- **Files Modified:** `contracts/page.tsx` (full rewrite), `transactions/page.tsx` (full rewrite, 230 lines), `settings/page.tsx` (full rewrite, 280 lines), `kinetic-canvas.tsx` (radius + opacity tweaks)
+- **Build Verification:** npm run build — 15/15 static pages ✅ (Compiled 32.6s, TypeScript 47s, zero errors)
+- **Next Turn Directive:** Test live, create GitHub repo, or move to Gumroad listing prep.

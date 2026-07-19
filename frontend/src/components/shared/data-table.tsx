@@ -35,7 +35,8 @@ interface DataTableProps<T> {
   emptyMessage?: string;
 }
 
-export function DataTable<T extends Record<string, unknown>>({
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function DataTable<T = any>({
   columns,
   data,
   searchable = false,
@@ -53,15 +54,15 @@ export function DataTable<T extends Record<string, unknown>>({
     searchable && searchKeys
       ? data.filter((item) =>
           searchKeys.some((key) =>
-            String(item[key]).toLowerCase().includes(search.toLowerCase())
+            String((item as Record<string, any>)[key as string]).toLowerCase().includes(search.toLowerCase())
           )
         )
       : data;
 
   const sorted = sortKey
     ? [...filtered].sort((a, b) => {
-        const aVal = a[sortKey];
-        const bVal = b[sortKey];
+        const aVal = (a as Record<string, any>)[sortKey];
+        const bVal = (b as Record<string, any>)[sortKey];
         const cmp = aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
         return sortDir === "asc" ? cmp : -cmp;
       })

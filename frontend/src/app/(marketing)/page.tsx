@@ -2,9 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import KineticCursor from "@/components/kinetic-cursor";
 import KineticCanvas from "@/components/kinetic-canvas";
-import VaultCursor from "@/components/vault-cursor";
 import VaultCanvas from "@/components/vault-canvas";
 import Logo from "@/components/logo";
 import FsmMockup from "@/components/fsm-mockup";
@@ -44,7 +42,6 @@ export default function LandingPage() {
     <>
       {mounted && (
         <>
-          {isVault ? <VaultCursor /> : <KineticCursor />}
           {isVault ? <VaultCanvas /> : <KineticCanvas />}
         </>
       )}

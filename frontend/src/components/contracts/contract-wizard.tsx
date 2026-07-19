@@ -226,7 +226,7 @@ export function ContractWizard({ onSuccess }: ContractWizardProps) {
 
   async function onSubmit(data: ContractFormData) {
     store.updateContract(data as any);
-    await createContract.mutateAsync(data);
+    await createContract.mutateAsync(data as any);
     store.reset();
     onSuccess?.();
   }

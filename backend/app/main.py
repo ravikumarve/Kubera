@@ -6,10 +6,16 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from slowapi.middleware import SlowAPIMiddleware
 
 from app.config import settings
+from app.database import async_session_factory
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Auto-seed a default dev user on first startup
+    from app.seed import seed_dev_user
+
+    async with async_session_factory() as db:
+        await seed_dev_user(db)
     yield
 
 

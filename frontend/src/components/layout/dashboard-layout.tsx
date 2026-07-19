@@ -1,33 +1,44 @@
 "use client";
 
-import { useUIStore } from "@/stores/ui-store";
-import { Sidebar } from "./sidebar";
-import { Header } from "./header";
+import { useEffect, useState } from "react";
+import { useTheme } from "@/components/theme-provider";
+import { CommandBar } from "./command-bar";
+import { StatusBar } from "./status-bar";
+import KineticCanvas from "@/components/kinetic-canvas";
+import VaultCanvas from "@/components/vault-canvas";
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const { sidebarOpen, toggleSidebar } = useUIStore();
+  const { theme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const isVault = theme === "vault";
 
   return (
-    <div className="flex min-h-screen">
-      <aside className="fixed inset-y-0 left-0 z-50 w-64 border-r bg-background transition-transform lg:relative lg:translate-x-0 hidden lg:block">
-        <Sidebar />
-      </aside>
-      {sidebarOpen && (
+    <div className="flex flex-col min-h-screen bg-[var(--bg-void)] font-mono relative">
+      {/* WebGL Canvas Background */}
+      {mounted && (
         <>
-          <aside className="fixed inset-y-0 left-0 z-50 w-64 border-r bg-background lg:hidden">
-            <Sidebar />
-          </aside>
-          <div
-            className="fixed inset-0 z-40 bg-black/50 lg:hidden"
-            onClick={toggleSidebar}
-          />
+          {isVault ? <VaultCanvas /> : <KineticCanvas />}
         </>
       )}
-      <div className="flex flex-1 flex-col min-w-0">
-        <Header />
-        <main className="flex-1 overflow-auto p-4 md:p-6 lg:p-8">
-          {children}
-        </main>
+
+      {/* Command bar — replaces sidebar + header */}
+      <div className="relative z-10">
+        <CommandBar />
+      </div>
+
+      {/* Main content */}
+      <main className="flex-1 relative z-10 px-6 py-6 overflow-auto">
+        {children}
+      </main>
+
+      {/* Bottom status bar */}
+      <div className="relative z-10">
+        <StatusBar />
       </div>
     </div>
   );

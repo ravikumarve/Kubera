@@ -29,7 +29,7 @@ export default function KineticCanvas() {
     const PARTICLE_COUNT = 300;
     const CENTER_X = () => canvas!.width / 2;
     const CENTER_Y = () => canvas!.height / 2;
-    const ESCROW_RADIUS = 150;
+    const ESCROW_RADIUS = 220;
 
     const resize = () => {
       canvas!.width = window.innerWidth;
@@ -128,7 +128,7 @@ export default function KineticCanvas() {
 
     function draw() {
       ctx!.globalAlpha = 1;
-      ctx!.fillStyle = 'rgba(3, 3, 3, 0.2)';
+      ctx!.fillStyle = 'rgba(3, 3, 3, 0.15)';
       ctx!.fillRect(0, 0, canvas!.width, canvas!.height);
 
       const cx = CENTER_X();
@@ -136,7 +136,7 @@ export default function KineticCanvas() {
 
       ctx!.beginPath();
       ctx!.arc(cx, cy, ESCROW_RADIUS, 0, Math.PI * 2);
-      ctx!.strokeStyle = 'rgba(0, 255, 163, 0.12)';
+      ctx!.strokeStyle = 'rgba(0, 255, 163, 0.06)';
       ctx!.lineWidth = 1;
       ctx!.setLineDash([6, 12]);
       ctx!.stroke();
