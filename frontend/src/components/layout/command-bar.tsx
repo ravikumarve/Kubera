@@ -72,7 +72,7 @@ export function CommandBar() {
                   href={tab.href}
                   className={`flex items-center gap-2 px-3 py-2 text-[13px] tracking-wider transition-colors whitespace-nowrap font-mono ${
                     isActive
-                      ? "bg-[var(--accent-dim)] text-black"
+                      ? "bg-[var(--accent-dim)] text-white"
                       : "text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-panel)]"
                   }`}
                 >

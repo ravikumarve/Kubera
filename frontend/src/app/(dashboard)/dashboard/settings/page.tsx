@@ -90,7 +90,7 @@ export default function SettingsPage() {
                 onClick={() => setActiveSection(item.id)}
                 className={`w-full flex items-center gap-3 px-4 py-3 text-xs tracking-wider uppercase font-mono transition-colors text-left ${
                   isActive
-                    ? "bg-[var(--accent-dim)] text-black border-l-2 border-l-[var(--accent)]"
+                    ? "bg-[var(--accent-dim)] text-white border-l-2 border-l-[var(--accent)]"
                     : "text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-panel)] border-l-2 border-l-transparent"
                 }`}
               >
@@ -140,7 +140,7 @@ export default function SettingsPage() {
                   </p>
                 </div>
                 <div className="pt-2 pb-3">
-                  <button className="px-5 py-2.5 border border-[var(--accent)] bg-[var(--accent)] text-[12px] font-bold tracking-wider text-black hover:bg-transparent hover:text-[var(--accent)] transition-colors uppercase font-mono">
+                  <button className="px-5 py-2.5 border border-[var(--accent)] bg-[var(--accent)] text-[12px] font-bold tracking-wider text-white hover:bg-transparent hover:text-[var(--accent)] transition-colors uppercase font-mono">
                     Save Changes
                   </button>
                 </div>
