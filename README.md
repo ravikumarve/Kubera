@@ -11,6 +11,12 @@
 
 # KUBERA
 
+<p align="center">
+  <img src="https://img.shields.io/github/stars/ravikumarve/Kubera?style=social" />
+  <img src="https://img.shields.io/github/license/ravikumarve/Kubera" />
+  <img src="https://img.shields.io/badge/status-active-brightgreen" />
+</p>
+
 KUBERA is a **production-ready source-code boilerplate** that wires together Next.js 16, FastAPI, PostgreSQL, and Stripe Connect into a working escrow SaaS foundation. Buy it once, own it forever, deploy anywhere.
 
 ---
@@ -155,6 +161,10 @@ All documentation is in the [`docs/`](docs/) directory:
 ## License
 
 MIT License — full source code rights granted to the buyer. Use KUBERA for any personal, commercial, or client project. The Pro tier includes white-label rights for agency/client work.
+
+## 🛒 Support the Project
+
+Star the repo, share it, or grab the Pro tier: [Buy on Gumroad](https://gumroad.com/ravikumarve)
 
 ---
 
