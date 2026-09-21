@@ -119,7 +119,7 @@ Two premium themes: **Kinetic Mint** (brutalist, straight edges) and **Vault Cob
 | 14 documentation files (430+ pages) | ✅ | ✅ |
 | Docker Compose dev environment | ✅ | ✅ |
 | CI/CD pipeline (GitHub Actions) | ✅ | ✅ |
-| MIT License — full ownership | ✅ | ✅ |
+| Commercial License — full product rights | ✅ | ✅ |
 | **E2E test suite** (Playwright + pytest + Vitest) | — | ✅ |
 | **Production deployment scripts** | — | ✅ |
 | **Nginx config + backup automation** | — | ✅ |
@@ -160,7 +160,7 @@ All documentation is in the [`docs/`](docs/) directory:
 
 ## License
 
-MIT License — full source code rights granted to the buyer. Use KUBERA for any personal, commercial, or client project. The Pro tier includes white-label rights for agency/client work.
+Commercial License — full source code rights granted to the buyer. Use KUBERA for any personal, commercial, or client project. The Pro tier includes white-label rights for agency/client work. Redistribution of the boilerplate itself is prohibited.
 
 ## 🛒 Support the Project
 

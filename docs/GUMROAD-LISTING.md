@@ -2,7 +2,7 @@
 
 **Price:** $149 Standard / $249 Pro  
 **Platform:** Gumroad (10% + $0.50 per sale)  
-**License:** MIT (Standard) / White-label (Pro)
+**License:** Commercial (Standard) / White-label (Pro)
 
 ---
 
@@ -27,7 +27,7 @@ Built by a solo developer who understands what you need — clean code, comprehe
 - Full auth (email + Google OAuth) via NextAuth.js (session management, role-based access)
 - Dark mode + responsive design (mobile-first, works on all screen sizes)
 - Comprehensive API documentation (OpenAPI/Swagger, Postman collection, webhook examples)
-- MIT License — full ownership of your code (no royalties, no revenue share)
+- Commercial License — full product rights to your code (no royalties, no revenue share)
 
 ---
 

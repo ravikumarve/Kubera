@@ -393,7 +393,7 @@ Low maturity     │ (CRA, Vite templates) │
 - [ ] What is the minimum Stripe Connect payout threshold for multi-currency? — Need to confirm with Stripe docs.
 - [ ] Should we support Stripe Tax calculation in v1? — Decision: Defer to v2. Buyers can configure their own Stripe Tax settings.
 - [ ] What test coverage threshold do we enforce? — Decision: 80%+ backend, critical path E2E for Pro.
-- [ ] License choice? — Decision: MIT for code, but KUBERA brand/trademark reserved.
+- [ ] License choice? — Decision: Commercial for code (Standard/Pro white-label), KUBERA brand/trademark reserved.
 - [ ] Do we include a pre-seeded demo database for quick evaluation? — Decision: Yes, a `docker compose up` with seed data so buyers see a working platform immediately.
 
 ---
@@ -426,7 +426,7 @@ Low maturity     │ (CRA, Vite templates) │
 
 ### A. License Strategy
 
-- **Source code**: MIT license — buyers can modify, sell, or deploy commercially.
+- **Source code**: Commercial license — buyers can modify, sell, or deploy commercially (no boilerplate redistribution).
 - **Brand/trademark**: "KUBERA" name and logo remain reserved.
 - **No royalties**: One-time purchase, no revenue share.
 - **Gumroad/LemonSqueezy standard terms apply**.

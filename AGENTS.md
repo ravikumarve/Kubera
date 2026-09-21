@@ -30,6 +30,10 @@
 
 ## 💾 Session Memory Ledger
 
+### [2026-09-21 11:00] — MIT → Commercial license conversion (pre-sale)
+- **State:** Success — LICENSE replaced with Commercial (Standard $149 / Pro $249 white-label); README tiers table + License section, GUMROAD-LISTING (2 lines), PRD license decision (2 lines) aligned. No license fields in manifests (verified). No code touched.
+- **Next Turn Directive:** Still missing for listing: product screenshots (0), dist/ bundle. Then verifier 70/100 gate.
+
 ### [2026-07-19 10:30] — KUBERA Boilerplate Pivot & Validation
 - **State:** Success — Pivoted from live fintech to boilerplate
 - **MCP Data Used:** `websearch` for market research (boilerplate market $50M+, Gumroad software revenue $65.8M, zero trade finance boilerplate competitors), `code_tree` for project structure
