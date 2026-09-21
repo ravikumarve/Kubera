@@ -30,6 +30,10 @@
 
 ## 💾 Session Memory Ledger
 
+### [2026-09-21 11:15] — Sale assets: 2 mockup shots + dist zip ✅
+- **State:** Success — screenshots/01-landing.png + 02-theme.png captured from repo mockups (browser-verified, pricing tiers visible); dist/kubera-v1.0.0-gumroad.zip (396K, 242 files, 0 leaks; frontend/.env with AUTH_SECRET excluded + gitignored). Live app shots still need a Postgres env (no Docker on Latitude) — mockups are honest design previews.
+- **Next Turn Directive:** Live-stack screenshots when a staging env exists; then list Standard $149 / Pro $249.
+
 ### [2026-09-21 11:00] — MIT → Commercial license conversion (pre-sale)
 - **State:** Success — LICENSE replaced with Commercial (Standard $149 / Pro $249 white-label); README tiers table + License section, GUMROAD-LISTING (2 lines), PRD license decision (2 lines) aligned. No license fields in manifests (verified). No code touched.
 - **Next Turn Directive:** Still missing for listing: product screenshots (0), dist/ bundle. Then verifier 70/100 gate.
